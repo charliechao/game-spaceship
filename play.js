@@ -9,7 +9,7 @@ var play_state = {
 
         //control keys
         var up_key = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        up_key.onDown.add(this.jump, this); 
+        up_key.onDown.add(this.jump, this);          
 
         var down_key = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         down_key.onDown.add(this.drop, this); 
@@ -22,45 +22,50 @@ var play_state = {
 
         // add pipes
         this.pipes = game.add.group();
-        this.pipes.createMultiple(20, 'pipe');  
+        this.pipes.createMultiple(100, 'pipe');  
         this.timer = this.game.time.events.loop(1500, this.add_row_of_pipes, this);           
 
-        this.bird = this.game.add.sprite(200, 450, 'bird');
+        this.bird = this.game.add.sprite(180, 300, 'bird');
         score = 0; 
         var style = { font: "30px Arial", fill: "#ffffff" };
         this.label_score = this.game.add.text(20, 20, "0", style); 
 
         this.jump_sound = this.game.add.audio('jump');
+        this.pipe_hit_sound = this.game.add.audio('pipe-hit');
 
 
     },
 
     update: function() {
+
         if (this.bird.inWorld == false)
             this.restart_game();
-            this.game.physics.overlap(this.bird, this.pipes, this.hit_pipe, null, this);      
+            this.game.physics.overlap(this.bird, this.pipes, this.hit_pipe, null, this); 
+            
+            // setup default movements
+            this.bird.body.velocity.y = - 20;
+            this.bird.body.velocity.x = 0;
+
     },
 
-    
 
-
-
+    // functions for movements
     jump: function() {
         
         if (this.bird.alive == false)
             return; 
 
-        this.bird.body.velocity.y -= 100;
+        this.bird.body.velocity.y -= 2000;
         this.jump_sound.play();
     },
 
 
-      drop: function() {
+    drop: function() {
         
         if (this.bird.alive == false)
             return; 
 
-        this.bird.body.velocity.y += 100;
+        this.bird.body.velocity.y += 2000;
         this.jump_sound.play();
     },
 
@@ -69,7 +74,7 @@ var play_state = {
         if (this.bird.alive == false)
             return; 
 
-        this.bird.body.velocity.x -= 100;    
+        this.bird.body.velocity.x -= 2000;    
         this.jump_sound.play();
     },
 
@@ -78,20 +83,23 @@ var play_state = {
         if (this.bird.alive == false)
             return; 
 
-        this.bird.body.velocity.x += 100;
+        this.bird.body.velocity.x += 2000;
         this.jump_sound.play();
     },
 
+
+    // what happens when hits pipes
     hit_pipe: function() {
         if (this.bird.alive == false)
-            return;
+            this.restart_game();
 
         this.bird.alive = false;
         this.game.time.events.remove(this.timer);
 
         this.pipes.forEachAlive(function(p){
-            p.body.velocity.x = 0;
+            p.body.velocity.y = 0;
         }, this);
+        this.pipe_hit_sound.play();
     },
 
     restart_game: function() {
