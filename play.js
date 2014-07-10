@@ -2,7 +2,7 @@ var play_state = {
 
     // No more preload, since it is already done in the 'load' state
 
-    create: function() { 
+    create: function() {  
 
         // background img
         game.add.sprite(0,0, 'background');
@@ -23,15 +23,19 @@ var play_state = {
         // add pipes
         this.pipes = game.add.group();
         this.pipes.createMultiple(100, 'pipe');  
-        this.timer = this.game.time.events.loop(1500, this.add_row_of_pipes, this);           
+        this.timer = this.game.time.events.loop(2000, this.add_row_of_pipes, this);           
 
         this.bird = this.game.add.sprite(180, 300, 'bird');
-        score = 0; 
+        this.score = 0; 
         var style = { font: "30px Arial", fill: "#ffffff" };
         this.label_score = this.game.add.text(20, 20, "0", style); 
 
         this.jump_sound = this.game.add.audio('jump');
         this.pipe_hit_sound = this.game.add.audio('pipe-hit');
+
+        
+
+       
 
 
     },
@@ -40,14 +44,44 @@ var play_state = {
 
         if (this.bird.inWorld == false)
             this.restart_game();
-            this.game.physics.overlap(this.bird, this.pipes, this.hit_pipe, null, this); 
+            this.game.physics.overlap(this.bird, this.pipes, this.hit_pipe, null, this);     
             
             // setup default movements
             this.bird.body.velocity.y = - 20;
             this.bird.body.velocity.x = 0;
 
+
+            // display variables
+        var x = game.world.width/2, y = game.world.height/2;
+          // Add stars
+        switch (this.score) {
+            case 5: 
+            var sprite = this.game.add.sprite(x-150, y-245,"star");
+            break;
+
+            case 10: 
+            var sprite = this.game.add.sprite(x-100, y-245,"star");
+            break;
+
+             case 20: 
+            var sprite = this.game.add.sprite(x-500, y-245,"star");
+            break;
+
+            case 30: 
+            var sprite = this.game.add.sprite(x, y-245,"star");
+            break;
+
+             case 40: 
+            var sprite = this.game.add.sprite(x+50, y-245,"star");
+            break;
+
+             case 50: 
+            var sprite = this.game.add.sprite(x+100, y-245,"star");
+            break;
+        }                 
     },
 
+   
 
     // functions for movements
     jump: function() {
@@ -105,8 +139,25 @@ var play_state = {
     restart_game: function() {
         this.game.time.events.remove(this.timer);
 
+        // check if score is high score and write into storage 
+         this.writeHighscore(this.score);   
         // This time we go back to the 'menu' state
         this.game.state.start('menu');
+
+        
+
+    },
+
+    writeHighscore: function (value) {
+        if (value > highscore) {
+            // Set the new high score
+            highscore = value;
+
+            // write to localstorage
+            localStorage.setItem("highscore", value);
+        }
+
+
     },
 
     add_one_pipe: function(x, y) {
@@ -124,7 +175,7 @@ var play_state = {
                 this.add_one_pipe(0, i*60+10);   
         
         // Not 'this.score', but just 'score'
-        score += 1; 
-        this.label_score.content = score;  
+        this.score += 1; 
+        this.label_score.content = this.score;  
     },
 };
