@@ -1,7 +1,5 @@
 var play_state = {
 
-    // No more preload, since it is already done in the 'load' state
-
     create: function() {  
 
         // background img
@@ -9,8 +7,7 @@ var play_state = {
 
         //control keys
         var up_key = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        up_key.onDown.add(this.jump, this);          
-
+        up_key.onDown.add(this.jump, this);        
         var down_key = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         down_key.onDown.add(this.drop, this); 
 
@@ -24,21 +21,15 @@ var play_state = {
         this.pipes = game.add.group();
         this.pipes.createMultiple(100, 'pipe');  
         this.timer = this.game.time.events.loop(2000, this.add_row_of_pipes, this);           
-
+        //Spaceship locatoin
         this.bird = this.game.add.sprite(180, 300, 'bird');
         this.score = 0; 
         var style = { font: "30px Arial", fill: "#ffffff" };
         this.label_score = this.game.add.text(20, 20, "0", style); 
 
         this.jump_sound = this.game.add.audio('jump');
-        this.pipe_hit_sound = this.game.add.audio('pipe-hit');
-
-        
-
-       
-
-
-    },
+        this.pipe_hit_sound = this.game.add.audio('pipe-hit');    
+     },
 
     update: function() {
 
@@ -50,8 +41,7 @@ var play_state = {
             this.bird.body.velocity.y = - 20;
             this.bird.body.velocity.x = 0;
 
-
-            // display variables
+            // display location variables
         var x = game.world.width/2, y = game.world.height/2;
           // Add stars
         switch (this.score) {
@@ -63,8 +53,8 @@ var play_state = {
             var sprite = this.game.add.sprite(x-100, y-245,"star");
             break;
 
-             case 20: 
-            var sprite = this.game.add.sprite(x-500, y-245,"star");
+            case 20: 
+            var sprite = this.game.add.sprite(x-50, y-245,"star");
             break;
 
             case 30: 
@@ -149,15 +139,30 @@ var play_state = {
     },
 
     writeHighscore: function (value) {
-        if (value > highscore) {
-            // Set the new high score
-            highscore = value;
+      var isHighScore = false;
+              var insertAtIndex;
+        // check if the current score is the highest score
+        for (i= highscores.length-1; i >=0; i--) {      
+            if (this.score>=highscores[i].score) {
+                isHighScore = true; // will have a high score
+                 insertAtIndex = i;// update the insert at index
+                               
+            } else {
+            break; // we want have a highscore, break the loop
 
-            // write to localstorage
-            localStorage.setItem("highscore", value);
+            }
         }
 
+        if (isHighScore) {
+            var name = window.prompt ("You just got high score. What's your name?");
+       // add the currrent score to the highscores array in the correct position
+            highscores.splice(insertAtIndex,0,{name:name, score: this.score});
+        // remove the last item in the highscores array
+            highscores.pop();
 
+         // write highscores to localstorage
+         localStorage.setItem("highscores", JSON.stringify(highscores));   
+        }
     },
 
     add_one_pipe: function(x, y) {

@@ -7,22 +7,30 @@ var load_state = {
         this.game.load.image('star', 'assets/star.png');  
         this.game.load.audio('jump', 'assets/jump.wav');
         this.game.load.audio('pipe-hit', 'assets/pipe.wav');
-        this.game.load.audio('music', 'assets/music.wav');
-        //check if there is local storage
-        if(typeof(Storage) !== "undefined") {
-    // Code for localStorage/sessionStorage.
-      var  local_highscore = localStorage.getItem("highscore");
-    // only set the highscore if there is a actual value in localStorage 
-            if (local_highscore) {
-               highscore = local_highscore;     
-            }
-
-        } 
-
+        this.game.load.audio('music', 'assets/music1.wav');
+        // For highscore board
+        this.load_highscore();
+      
     },
+
+
 
     create: function() {
         // When all assets are loaded, go to the 'menu' state
         this.game.state.start('menu');
-    }
+    },
+
+     load_highscore: function () {
+      // Load the highscore from localstorage
+        if(typeof(Storage) !== "undefined") {
+            var local_highscores = localStorage.getItem("highscores");
+
+            // Only set the highscore if there is actually a value in localstorage
+            if (local_highscores) {
+                highscores = JSON.parse(local_highscores);
+            }
+            
+        }
+   } 
+
 };
